@@ -1,0 +1,28 @@
+# Enable URL rewriting
+RewriteEngine On
+
+# Redirect /panel to /panel/login
+# RewriteRule ^panel/?$ /panel/login [L,R=302]
+
+# Rule to remove .php extension from the URL
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# Redirect to login.php if index.php does not exist
+RewriteCond %{DOCUMENT_ROOT}/index.php !-f
+RewriteCond %{REQUEST_URI} ^/?$
+RewriteRule ^.*$ /auth/login [L,R=302]
+
+# Pass HTTP Authorization headers
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule ^(.*) - [E=HTTP_AUTHORIZATION:%1]
+
+# Verify account
+# RewriteRu÷le ^verify/([a-zA-Z0-9]+)$ auth/verify.php?token=$1 [L,QSA]
+
+# Forgot password reset
+# RewriteRule ^password/reset/([a-zA-Z0-9]+)$ auth/passwordreset.php?token=$1 [L,QSA]
+
+# Custom 404 error page
+ErrorDocument 404 /errors/404.php
