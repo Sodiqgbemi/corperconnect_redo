@@ -1,0 +1,11 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Includes\\": "includes/",
+            "Model\\": "app/Models/"
+        }
+    },
+    "require": {
+        "phpmailer/phpmailer": "^7.0"
+    }
+}
