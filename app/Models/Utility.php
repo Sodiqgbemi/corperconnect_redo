@@ -122,7 +122,7 @@ class Utility extends Database
         $formInput = '';
         if (isset($_SESSION['formInput'][$name])) {
             $formInput = $_SESSION['formInput'][$name];
-            // unset($_SESSION['formInput'][$name]);
+            unset($_SESSION['formInput'][$name]);
         }
         echo $formInput;
     }
@@ -131,8 +131,7 @@ class Utility extends Database
         $formError = "";
         if (!isset($_SESSION['titleMessage'])) {
             if (isset($_SESSION['errorMessage'])) {
-
-                $formError .= '<div class="alert alert-danger alert-dismissible fade show d-flex" role="alert">
+                $formError .= '<div class="alert alert-danger alert-dismissible d-flex" role="alert">
                                     <div>';
                 if (is_array($_SESSION['errorMessage'])) {
                     $formError .= '<h5 class="mt-1 mb-2">Errors!</h5>
