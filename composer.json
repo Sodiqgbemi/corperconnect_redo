@@ -2,7 +2,9 @@
     "autoload": {
         "psr-4": {
             "Includes\\": "includes/",
-            "Model\\": "app/Models/"
+            "Security\\": "includes/security/",
+            "Model\\": "app/Models/",
+            "Helpers\\": "app/Helpers/"
         }
     },
     "require": {
