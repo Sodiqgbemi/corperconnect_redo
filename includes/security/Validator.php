@@ -113,6 +113,7 @@ class Validator
         'streetaddress' => '<b>{field}</b> does not seem to be a valid street address',
         'url' => 'The <b>{field}</b> field is required to be a valid URL',
         'urlexists' => '<b>{field}</b> URL does not exist',
+    
     ];
 
     protected array $_emptyErrormsgHTMLSpanAttr = [
