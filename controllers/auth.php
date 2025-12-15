@@ -4,11 +4,10 @@ require_once __DIR__ . '/../includes/config.php';
 
 use Helpers\ErrorResponse;
 use Includes\ClientLang;
+use Includes\EmailSender;
 use Includes\Security\CSRF;
-use Model\User;
 use Includes\Security\Validator;
 
-$user_instance = new User($db); 
 
 // Get and sanitize input data
 $postData = array_merge(
@@ -17,6 +16,104 @@ $postData = array_merge(
 );
 
 $errors = [];
+
+// $email_send_instance = new EmailSender();
+// $result = $email_send_instance->send("sodiqgbemishola4@gmail.com", "Error from Copperconnect", 'test it');
+
+if(isset($postData['corper_signup'])){
+        try{
+        $_SESSION['formInput'] = $postData;
+        $csrfToken = $postData['csrf_token'] ?? '';
+        $errors = []; // Initialize an empty array to collect all errors
+
+        if(!CSRF::validateCsrfToken($csrfToken)) {
+            $errors[] = 'CSRF token validation failed or token expired! Please re-submit your data';
+        }
+
+        $myFilters = [
+            'first_name' => [
+                'validation' =>  'required',
+                'sanitization' => 'string|trim|lowercase',
+            ],
+            'last_name' => [
+                'validation' =>  'required',
+                'sanitization' => 'string|trim|lowercase',
+            ],
+            'email' => [
+                'validation' =>  'required|email',
+                'sanitization' => 'string|trim|lowercase',
+            ],
+            'password' => [
+                'validation' =>  'required|minlen:5',
+                'sanitization' => 'string',
+            ],
+
+            'password2'=> [
+                'validation' => 'required|minlen:5|same:password',  // PASSWORDS MUST MATCH
+                'sanitization' => 'string',
+            ]
+        ];
+
+        $validator = new Validator ($myFilters);
+        $sanitizedData = $validator->run($postData);
+        if(!$sanitizedData) {
+            $errors = array_merge($errors, $validator->getValidationErrors());
+        }
+
+        $first_name = $postData['first_name'];
+        $last_name = $postData['last_name'];
+        $password = $postData['password'];
+        $password2 = $postData['password2'];
+        $emailaddress = $postData['email'];
+
+        // Check if password is too short
+        if (strlen($password) < 5) {
+            $errors[] = ClientLang::PASS_LEN_5;
+        }
+
+        if ($password2 !== $password ){
+            $errors[] = ClientLang::NEW_EQUAL_OLD_PASSWORD;
+        }
+
+        if (!filter_var($emailaddress, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = ClientLang::INVALID_EMAIL;
+        }
+
+        if (!empty($user_instance->getUserByEmail($emailaddress))) {
+            $errors[] = ClientLang::EMAIL_EXIST;
+        }
+
+        // Handle errors or proceed
+        if (!empty($errors)) {
+            $_SESSION['errorMessage'] = $errors;
+            header("location: " . REFERER);
+            exit;
+        }
+
+        $create_user = $user_instance->createUser([
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'email_address' => $emailaddress,
+            'password' => $user_instance->hashPassword($password), 
+        ]);
+        
+        if($create_user){      
+             $_SESSION['successMessage'] = ClientLang::REGISTER_SUCCESS;
+                header("location: " . REFERER); 
+                exit;
+
+        } else {
+             $_SESSION['errorMessage'] = ClientLang::REGISTER_FAILED;
+            header("location: ".AUTH_URL."login");
+            exit;
+        }
+
+        } catch (PDOException | Throwable $e ) {
+           $_SESSION['errorMessage'] = ErrorResponse::formatResponse($e);
+           header("location: ".REFERER);
+           exit;
+        }
+}
 
 if (isset($postData["corper_login"])) {
     try {
@@ -69,4 +166,5 @@ if (isset($postData["corper_login"])) {
         echo ErrorResponse::formatResponse($e);
     }
 }
+
 

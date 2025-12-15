@@ -179,7 +179,7 @@ class Utility extends Database
                 $formError .= '</div>';
 
                 unset($_SESSION['successMessage']);
-                $this->clearFormSessions();
+                // $this->clearFormSessions();
                 return $formError;
             }
         } else {

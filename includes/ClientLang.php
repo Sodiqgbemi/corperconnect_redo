@@ -5,6 +5,7 @@ namespace Includes;
 class ClientLang
 {
     // Authentication messages
+  
     public const PLEASE_LOGIN = "Please login to access this page";
     public const USER_NOT_FOUND = 'User not found';
     public const USERKYC_NOT_FOUND = 'User KYC not found';
