@@ -8,12 +8,9 @@ error_reporting(E_ALL);
 // error_reporting(0);
 
 use PDO;
+use Model\User;
 use PDOException;
-// use Model\User;
-// use Model\Admins;
-// use Helpers\Pages;
 use Model\Utility;
-// use Model\Settings;
 use Includes\Database;
 use Includes\envLoader;
 
@@ -47,7 +44,7 @@ define('REFERER', $_SERVER['HTTP_REFERER'] ?? '');
 
 // Application constants
 define('BASE_URL', SCHEME . '://' . SERVER . BASE_PATH);
-define('AUTH_URL', SCHEME . '://' . SERVER . BASE_PATH.'auth/');
+define('AUTH_URL', BASE_URL.'auth/');
 define('ADMIN_AUTH_URL', SCHEME . '://' . SERVER . BASE_PATH.'panel/');
 define('USER_ACCESS_DIR', BASE_URL . 'v/');
 define('ADMIN_ACCESS_DIR', BASE_URL . 'panel/');
@@ -57,18 +54,12 @@ define('EMAIL_TEMPLATE_DIR', TEMPLATE_DIR . 'emails/');
 define('CONTROLLER_URL', BASE_URL.'controllers/');
 define('USER_CONTROLLER_URL', BASE_URL.'controllers/user/');
 define('ADMIN_CONTROLLER_URL', BASE_URL.'controllers/admin/');
-define('CALLBACK_URL', BASE_URL.'callback/');
 define('COMPONENT_DIR', ROOT . BASE_PATH . 'components/');
 define('GUEST_COMPONENT_DIR', ROOT . BASE_PATH . 'components/guest/');
 define('USER_COMPONENT_DIR', ROOT . BASE_PATH . 'components/user/');
 define('ADMIN_COMPONENT_DIR', ROOT . BASE_PATH . 'components/admin/');
 define('USER_MODAL_COMPONENT_DIR', ROOT . BASE_PATH . 'components/user/modals/');
 define('ADMIN_MODAL_COMPONENT_DIR', ROOT . BASE_PATH . 'components/admin/modals/');
-define('TEAM_LOGO_DIR', ROOT . BASE_PATH . 'assets/img/teams/');
-define('TEAM_LOGO_URL', BASE_URL . 'assets/img/teams/');
-define('LEAGUE_LOGO_DIR', ROOT . BASE_PATH . 'assets/img/league/');
-define('LEAGUE_LOGO_URL', BASE_URL . 'assets/img/league/');
-define('LOGO_URL', BASE_URL . 'assets/img/logo/');
 define('ENCRYPT_CODE', '$p0RtOd$$1');
 
 // Database connection
@@ -84,33 +75,17 @@ try {
 }
 
 $db = new Database($pdo);
-$utility = new Utility($db);
-// $user_instance = new User($db);
-// $admin_instance = new Admins($db);
-// $settings_instance = new Settings($db);
-// $pages_instance = new Pages($db);
+$utility_instance = new Utility($db);
+$user_instance = new User($db);
 
-// $allSettings = $settings_instance->getSettings();
-// $pageTitle = $pages_instance->get_page_title(PAGE);
 $pageTitle = 'CorperConnect';
-
-// // Get KYC Settings...
-// $kycSettings = $allSettings['kyc_settings'] ?? null;
-// $decodeKycSettings = $kycSettings ? json_decode($allSettings['kyc_settings'], true) : [];
-// $bvnCharges = $decodeKycSettings['bvn_charges'] ?? 0;
-// $ninCharges = $decodeKycSettings['nin_charges'] ?? 0;
-// $kyc_verification_type = $decodeKycSettings['verification_type'] ?? 'disabled';
-
-// define('BVN_CHARGES', $bvnCharges);
-// define('NIN_CHARGES', $ninCharges);
-// define('KYC_VERIFICATION_METHOD', $kyc_verification_type);
 
 define("PAGE_TITLE", is_null($pageTitle) ? APP_NAME : APP_NAME . ' | ' . $pageTitle);
 
 // Other application logic here...
 date_default_timezone_set(envLoader::get_key('TIMEZONE'));
 
-// $userId = $utility->get_current_user();
+// $userId = $utility_instance->get_current_user();
 $userData = $adminData = [];
 $userId = '';
 
@@ -119,5 +94,5 @@ if (!empty($userId)) {
 }
 
 if (isset($_SESSION['adminid'])) {
-    $adminData = $admin_instance->getAdminById($utility->get_current_user('admin'));
+    $adminData = $admin_instance->getAdminById($utility_instance->get_current_user('admin'));
 }

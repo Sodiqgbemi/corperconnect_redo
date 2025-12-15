@@ -56,6 +56,8 @@ class Validator
         'strip_high' => FILTER_FLAG_STRIP_HIGH,
         'strip_low' => FILTER_FLAG_STRIP_LOW,
         'strip_backtick' => FILTER_FLAG_STRIP_BACKTICK,
+        'match' => 'same',
+        'equals' => 'same',
     ];
 
     protected string $_argsDelimiter = ', ';
@@ -65,6 +67,7 @@ class Validator
     protected string $_fieldLabelFwdHierarchyDelimiter = '.';
     protected string $_fieldLabelRevHierarchyDelimiter = ' of ';
     protected bool $_mbSupported = false;
+    protected array $_inputData = [];
 
     // Default validation error messages
     protected array $_factoryValidationErrorMsgs = [
@@ -109,6 +112,7 @@ class Validator
         'regex' => '<b>{field}</b> did not match regular expression: {arg1}',
         'required' => '<b>{field}</b> is required',
         'requiredfile' => 'File is required for <b>{field}</b>',
+        'same' => '<b>{field}</b> must match {arg1}',
         'startswith' => '<b>{field}</b> does not start with {arg1}',
         'streetaddress' => '<b>{field}</b> does not seem to be a valid street address',
         'url' => 'The <b>{field}</b> field is required to be a valid URL',
@@ -198,6 +202,7 @@ class Validator
     public function run(array $input)
     {
         $this->_validationErrorLog = [];
+        $this->_inputData = $input; // Store input data for cross-field validation
         $sanitizedData = [];
 
         foreach ($this->_filters as $field => $config) {
@@ -454,9 +459,15 @@ class Validator
             '{args}' => implode($this->_argsDelimiter, $args),
         ];
 
-        // Add individual argument replacements
+        // Add individual argument replacements with field labels
         foreach ($args as $index => $arg) {
-            $replacements['{arg' . ($index + 1) . '}'] = $arg;
+            // Check if this arg is a field name and get its label
+            if (isset($this->_filters[$arg])) {
+                $argLabel = $this->_filters[$arg]['label'] ?? $this->_generateFieldLabel($arg);
+                $replacements['{arg' . ($index + 1) . '}'] = $argLabel;
+            } else {
+                $replacements['{arg' . ($index + 1) . '}'] = $arg;
+            }
         }
 
         // Apply replacements
@@ -654,9 +665,14 @@ class Validator
      */
     protected function validate_equalsfield($value, $args = null): bool
     {
-        // This would need access to full input data
-        // Implementation requires modification to pass full input
-        return false;
+        if (empty($args)) {
+            return false;
+        }
+
+        $compareFieldName = $args[0];
+        $compareValue = $this->_inputData[$compareFieldName] ?? null;
+
+        return (string) $value === (string) $compareValue;
     }
 
     /**
@@ -955,6 +971,33 @@ class Validator
     protected function validate_requiredfile($value, $args = null): bool
     {
         return is_array($value) && isset($value['error']) && $value['error'] !== UPLOAD_ERR_NO_FILE;
+    }
+
+    /**
+     * Validate field matches another field
+     * 
+     * @param mixed $value Current field value
+     * @param array|null $args Arguments array containing the field name to match
+     * @return bool True if fields match
+     */
+    protected function validate_same($value, $args = null): bool
+    {
+        if (empty($args)) {
+            return false;
+        }
+
+        $compareFieldName = $args[0];
+        $compareValue = $this->_inputData[$compareFieldName] ?? null;
+
+        // Case-insensitive comparison option
+        $caseInsensitive = isset($args[1]) && strtolower($args[1]) === 'caseinsensitive';
+
+        if ($caseInsensitive) {
+            return strtolower((string) $value) === strtolower((string) $compareValue);
+        }
+
+        // Default: case-sensitive comparison
+        return (string) $value === (string) $compareValue;
     }
 
     /**

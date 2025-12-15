@@ -18,24 +18,33 @@ use Includes\Security\CSRF;
         <div class="bg-white p-5 rounded shadow" style="width: 100%; max-width: 600px;">
 
             <h3 class="text-center mb-4">Create Your Account</h3>
-            <?php echo $utility->displayAlertMessage(); ?>
+            <?php echo $utility_instance->displayAlertMessage(); ?>
 
             <form action="<?php echo CONTROLLER_URL; ?>auth.php" method="POST">
                 <?php echo CSRF::csrfField(); ?>
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <label for="fname" class="form-label">First Name</label>
-                        <input type="text" name="first_name" class="form-control p-3" id="fname" placeholder="First name" style="background-color:#dff6dc;">
+                        <input type="text" name="first_name" class="form-control p-3" id="fname" 
+                            placeholder="First name" style="background-color:#dff6dc;"
+                            value="<?php echo $utility_instance->returnFormInput('first_name');?>"
+                        >
                     </div>
                     <div class="col-md-6">
                         <label for="lname" class="form-label">Last Name</label>
-                        <input type="text" name="last_name" class="form-control p-3" id="lname" placeholder="Last name" style="background-color:#dff6dc;">
+                        <input type="text" name="last_name" class="form-control p-3" id="lname" 
+                            placeholder="Last name" style="background-color:#dff6dc;"
+                            value="<?php echo $utility_instance->returnFormInput('last_name');?>"
+                        >
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="email" class="form-label">Email Address</label>
-                    <input type="email" name="email" class="form-control p-3" id="email" placeholder="you@example.com" style="background-color:#dff6dc;">
+                    <input type="email" name="email" class="form-control p-3" id="email" 
+                        placeholder="you@example.com" style="background-color:#dff6dc;"
+                        value="<?php echo $utility_instance->returnFormInput('email');?>"
+                    >
                 </div>
 
                 <div class="row g-3 mb-4">

@@ -4,11 +4,10 @@ require_once __DIR__ . '/../includes/config.php';
 
 use Helpers\ErrorResponse;
 use Includes\ClientLang;
+use Includes\EmailSender;
 use Includes\Security\CSRF;
-use Model\User;
 use Includes\Security\Validator;
 
-$user_instance = new User($db); 
 
 // Get and sanitize input data
 $postData = array_merge(
@@ -18,47 +17,56 @@ $postData = array_merge(
 
 $errors = [];
 
+// $email_send_instance = new EmailSender();
+// $result = $email_send_instance->send("sodiqgbemishola4@gmail.com", "Error from Copperconnect", 'test it');
+
 if(isset($postData['corper_signup'])){
         try{
         $_SESSION['formInput'] = $postData;
         $csrfToken = $postData['csrf_token'] ?? '';
         $errors = []; // Initialize an empty array to collect all errors
 
-            if(!CSRF::validateCsrfToken($csrfToken)) {
-                $errors[] = 'CSRF token validation failed or token expired! Please re-submit your data';
-            }
+        if(!CSRF::validateCsrfToken($csrfToken)) {
+            $errors[] = 'CSRF token validation failed or token expired! Please re-submit your data';
+        }
 
-            $myFilters = [
-                'first_name' => [
-                    'validation' =>  'required',
-                    'sanitization' => 'string|trim|lowercase',
-                ],
-                'last_name' => [
-                    'validation' =>  'required',
-                    'sanitization' => 'string|trim|lowercase',
-                ],
-                'email' => [
-                    'validation' =>  'required|email',
-                    'sanitization' => 'string|trim|lowercase',
-                ],
-                'password' => [
-                    'validation' =>  'required|minlen:5',
-                    'sanitization' => 'string',
-                ],
+        $myFilters = [
+            'first_name' => [
+                'validation' =>  'required',
+                'sanitization' => 'string|trim|lowercase',
+            ],
+            'last_name' => [
+                'validation' =>  'required',
+                'sanitization' => 'string|trim|lowercase',
+            ],
+            'email' => [
+                'validation' =>  'required|email',
+                'sanitization' => 'string|trim|lowercase',
+            ],
+            'password' => [
+                'validation' =>  'required|minlen:5',
+                'sanitization' => 'string',
+            ],
 
-                'password2'=> [
-                    'validation' => 'required|minlen:5',  // PASSWORDS MUST MATCH
-                    'sanitization' => 'string',
-                ]
-            ];
+            'password2'=> [
+                'validation' => 'required|minlen:5|same:password',  // PASSWORDS MUST MATCH
+                'sanitization' => 'string',
+            ]
+        ];
 
-            $validator = new Validator ($myFilters);
-            $sanitizedData = $validator->run($postData);
-            if(!$sanitizedData) {
-                $errors = array_merge($errors, $validator->getValidationErrors());
-            }
+        $validator = new Validator ($myFilters);
+        $sanitizedData = $validator->run($postData);
+        if(!$sanitizedData) {
+            $errors = array_merge($errors, $validator->getValidationErrors());
+        }
 
-             // Check if password is too short
+        $first_name = $postData['first_name'];
+        $last_name = $postData['last_name'];
+        $password = $postData['password'];
+        $password2 = $postData['password2'];
+        $emailaddress = $postData['email'];
+
+        // Check if password is too short
         if (strlen($password) < 5) {
             $errors[] = ClientLang::PASS_LEN_5;
         }
@@ -71,11 +79,11 @@ if(isset($postData['corper_signup'])){
             $errors[] = ClientLang::INVALID_EMAIL;
         }
 
-        if (!empty($user_instance->getUser($emailaddress))) {
+        if (!empty($user_instance->getUserByEmail($emailaddress))) {
             $errors[] = ClientLang::EMAIL_EXIST;
         }
 
-         // Handle errors or proceed
+        // Handle errors or proceed
         if (!empty($errors)) {
             $_SESSION['errorMessage'] = $errors;
             header("location: " . REFERER);
@@ -88,6 +96,7 @@ if(isset($postData['corper_signup'])){
             'email_address' => $emailaddress,
             'password' => $user_instance->hashPassword($password), 
         ]);
+        
         if($create_user){      
              $_SESSION['successMessage'] = ClientLang::REGISTER_SUCCESS;
                 header("location: " . REFERER); 
