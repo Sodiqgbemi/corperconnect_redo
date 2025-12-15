@@ -41,4 +41,24 @@ class User extends Utility {
             throw $e;
         }
     }
+
+
+
+    public function createUser(array $userData)  {
+
+        try{
+            $createUser = $this->db->insert($this->table->user,$userData);
+            
+            if($createUser){
+                $this->responseBody = true;               
+            } else {              
+                $this->responseBody = false;
+            }
+                 return $this->responseBody;
+              
+        } catch(Throwable $e){
+                throw $e;
+        }
+
+    }
 }
