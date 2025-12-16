@@ -1,0 +1,6 @@
+==========21:25:24============
+TypeError: Model\User::getUserByEmail(): Argument #1 ($email) must be of type string, null given, called in C:\laragon\www\corperconnect_redo\controllers\auth.php on line 82 and defined in C:\laragon\www\corperconnect_redo\app\Models\User.php:30
+Stack trace:
+#0 C:\laragon\www\corperconnect_redo\controllers\auth.php(82): Model\User->getUserByEmail(NULL)
+#1 {main}
+===========end============

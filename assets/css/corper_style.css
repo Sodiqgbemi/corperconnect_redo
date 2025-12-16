@@ -1,0 +1,217 @@
+/*index*/
+:root {
+      --sage: #a2f18a;
+      --peach: #f7d9c4;
+      --cream: #ffffee;
+      --charcoal:#090707;
+    }
+
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+.noto-serif-dives-akuru-regular {
+  font-family: "Noto Serif Dives Akuru", serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.baskervville-sc-regular {
+  font-family: "Baskervville SC", serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.pacifico-regular {
+  font-family: "Pacifico", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.adminlogin{
+  background-color: var(--charcoal);
+}
+
+body  {
+font-family: "noto-serif-dives-akuru-regular";
+font-weight: 200;
+font-style: normal;;
+background-color: var(--cream);
+color: #153b23;
+overflow-x: hidden;
+}
+
+header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+background-color: var(--sage);
+flex-wrap: wrap;
+
+}
+
+.logo {
+display: flex;
+align-items: center;
+}
+
+.logo img {
+height: 60px;
+margin-right: 5px;
+padding: 5px;
+
+}
+
+.logo h1 {
+font-size: 1.8rem;
+color: #153b23;
+}
+
+nav {
+position: relative;
+}
+
+.nav-links {
+display: flex;
+gap: 1.5rem;
+list-style: none;
+}
+
+.nav-links li a {
+text-decoration: none;
+color: #153b23;
+font-weight: 500;
+}
+
+.signup-btn {
+background-color: #FECB00;
+color: white;
+padding: 8px 16px;
+border-radius: 20px;
+font-weight: 600;
+}
+
+.hamburger {
+display: none;
+font-size: 24px;
+cursor: pointer;
+}
+
+.hero {
+text-align: center;
+padding: 4rem 2rem;
+}
+
+.hero h2 {
+font-size: 2.5rem;
+margin-bottom: 1rem;
+}
+
+.hero p {
+font-size: 1.2rem;
+margin-bottom: 2rem;
+}
+
+.features {
+display: flex;
+justify-content: center;
+gap: 2rem;
+flex-wrap: wrap;
+}
+
+.feature-card {
+background-color: #baf0cf;
+padding: 1.7rem;
+border-radius: 15px;
+box-shadow: 0 4px 12px rgba(0, f, 0, 0.08);
+max-width: 350px;
+min-height: 200px;
+text-align: center;
+transition: transform 0.4s ease;
+}
+
+.feature-card img {
+width: 50px;
+margin-bottom: 1rem;
+}
+
+.feature-card:hover {
+transform: translateY(-10px);
+}
+
+.iicons {
+display: flex;
+justify-content: center;
+gap: 2rem;
+flex-wrap: wrap;
+}
+
+.justicons {
+padding: 1.5rem;
+border-radius: 15px;
+width: 200px;
+text-align: center;
+transition: transform 0.4s ease;
+}
+
+.justicons img {
+width: 70px;
+height: 70px;
+margin-bottom: 1rem;
+}
+
+
+.float-icon {
+animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+0% { transform: translateY(0); }
+50% { transform: translateY(-10px); }
+100% { transform: translateY(0); }
+}
+
+.fade-in {
+opacity: 0;
+animation: fadeIn 1s ease forwards;
+}
+
+.fade-in-delay {
+opacity: 0;
+animation: fadeIn 1.5s ease forwards;
+animation-delay: 0.5s;
+}
+
+@keyframes fadeIn {
+to {
+opacity: 1;
+}
+}
+
+@media (max-width: 768px) {
+.nav-links {
+display: none       ;
+flex-direction: column;
+background-color: #f3fced;
+position: absolute;
+right: 0;
+top: 60px;
+width: 100%;
+padding: 1rem 0;
+}
+
+.nav-links.active {
+display: flex;
+}
+
+.hamburger {
+display: block;
+}
+}
+
+
+
+
+
