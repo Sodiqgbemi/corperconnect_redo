@@ -19,69 +19,63 @@ class User extends Utility {
 
     }
 
-    public function getUser(string|int $userData) : array {
+    public function getUserPassword(string|int $userData) {
         try {
-            if ( is_string($userData)){
-                return $this->db->getUserByEmail($userData);
+            if (is_int($userData)) {
+                $user = $this->db->getSingleRecord($this->table->user, 'users_password', " AND user_id = '$userData'");
+            } else {
+                $user = $this->db->getSingleRecord($this->table->user, 'users_password', " AND users_email = '$userData'");
             }
-             else {
-                return $this->db->getUserById($userData);
-            }
+            return $user['users_password'];
         } catch (Throwable $e) {
             throw $e;
         }
     }
 
-    public function getUserPassword(){
-        try{
+    public function getUser(string|int $userData) {
+        try {
+            if (is_int($userData)) {
+                $user = $this->getUserById($userData);
+            } else {
+                $user = $this->getUserByEmail($userData);
+            }
+            return $user;
+        } catch (Throwable $e) {
+            throw $e;
+        }
+    }
+    
+    private function getUserByEmail(string $email) : array {
+        try {
             $user = $this->db->getSingleRecord($this->table->user, '*', " AND users_email = '$email'");
 
             if (!$user OR $user === null) {
                 return [];
             }
 
+            unset($user['users_password']);
             return $user;
 
         } catch (Throwable $e) {
             throw $e;
         }
     }
-
     
-    private function getUserByEmail(string $userData) : array {
+    private function getUserById(int $userId) : array {
         try {
-            $user = $this->db->getSingleRecord($this->table->user, '*', " AND users_email = '$userData'");
+            $user = $this->db->getSingleRecord($this->table->user, '*', " AND user_id = '$userId'");
 
             if (!$user OR $user === null) {
                 return [];
             }
+
+            unset($user['users_password']);
             return $user;
 
         } catch (Throwable $e) {
             throw $e;
         }
     }
-
-
-    private function getUserById(Int $userData){
-         try {
-            $query = "SELECT *, FROM 
-                {$this->table->user} user
-                WHERE 
-                (user.user_id = '$userData')
-            ";
-            $result = $this->db->getRecFrmQry($query, 'single');
-            if ($result != NULL) {
-                $this->responseBody = $result;
-            } else {
-                $this->responseBody = [];
-            }
-            return $this->responseBody;
-        } catch (Throwable $e) {
-            throw $e;
-        }
-    }
-
 
     public function createUser(array $userData)  {
 
@@ -93,7 +87,7 @@ class User extends Utility {
             } else {              
                 $this->responseBody = false;
             }
-                 return $this->responseBody;
+            return $this->responseBody;
               
         } catch(Throwable $e){
                 throw $e;

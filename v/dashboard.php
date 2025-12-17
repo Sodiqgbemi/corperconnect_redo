@@ -1,11 +1,10 @@
 <?php
-
 require_once __DIR__ . '/../components/mainhead.php';
 
-use Includes\Security\CSRF;
-use Model\Utility;
+if(!isset($_SESSION['userid'])) {
+    $utility_instance->revokeUnauthorize();
+}
 
-$utility_instance = new Utility($db);
 ?>
 <?php include_once GUEST_COMPONENT_DIR.'navbar.php';?>
 <!-- Main Layout -->
@@ -22,6 +21,7 @@ $utility_instance = new Utility($db);
                     <li><a class="nav-link text-white sidebar-link" href="#">🔄 Redeployment</a></li>
                     <li><a class="nav-link text-white sidebar-link" href="#">📊 Skills Tracker</a></li>
                     <li><a class="nav-link text-white sidebar-link" href="#">💬 Messages</a></li>
+                    <li><a class="nav-link text-dark sidebar-link" href="logout">Log Out (<?php echo $userData['users_fname'];?>)</a></li>
                 </ul>
             </div>
         </nav>
@@ -30,7 +30,8 @@ $utility_instance = new Utility($db);
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
                 <div>
-                    <h1 class="h3">Welcome, Corper Rukayat 👋</h1>
+                    <?php var_export($userData);?>
+                    <h1 class="h3">Welcome, Corper <?php echo $userData['users_fname'];?> 👋</h1>
                     <p class="text-muted">Monday, July 21, 2025</p>
                 </div>
                 <div class="d-flex align-items-center gap-3">

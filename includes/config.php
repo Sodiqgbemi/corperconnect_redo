@@ -85,9 +85,15 @@ define("PAGE_TITLE", is_null($pageTitle) ? APP_NAME : APP_NAME . ' | ' . $pageTi
 // Other application logic here...
 date_default_timezone_set(envLoader::get_key('TIMEZONE'));
 
+<<<<<<< HEAD
 $userId = $utility_instance->get_current_user();
 //$userData = $adminData = [];
 //$userId = '';
+=======
+// $userId = $utility_instance->get_current_user();
+$userData = $adminData = [];
+$userId = $_SESSION['userid'] ?? '';
+>>>>>>> d63d394bddae7c3d48927ec792b23ff55f8e5a1f
 
 if (!empty($userId)) {
     $userData = $user_instance->getUser($userId);
