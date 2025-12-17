@@ -18,13 +18,13 @@ $utility_instance = new Utility($db);
             <?php echo CSRF::csrfField(); ?>
 
             <div class="mb-3">
-                <label for="loginEmail" class="form-label">Email</label>
+                <label for="user_detail" class="form-label">Email</label>
                 <input type="text" name="email" class="form-control" id="loginEmail" 
                     placeholder="Enter your email or username" 
                     value="<?php echo $utility_instance->returnFormInput('email');?>"
                 >
             </div>
-            <button type="submit" name="change_password" class="btn btn-success">
+            <button type="submit" name="initiate_password_reset" class="btn btn-success">
                 <i class="fa fa-paper-plane"></i> Forgot Password
             </button>
         </form>

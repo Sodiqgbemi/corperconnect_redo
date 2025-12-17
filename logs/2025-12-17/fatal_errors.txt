@@ -1,0 +1,18 @@
+==========12:18:16============
+PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'email' in 'where clause' in C:\laragon\www\corperconnect_redo\includes\Database.php:149
+Stack trace:
+#0 C:\laragon\www\corperconnect_redo\includes\Database.php(149): PDO->prepare('SELECT  user.* ...')
+#1 C:\laragon\www\corperconnect_redo\includes\Database.php(115): Includes\Database->get('user', Array)
+#2 C:\laragon\www\corperconnect_redo\app\Models\User.php(25): Includes\Database->__call('getUserByEmail', Array)
+#3 C:\laragon\www\corperconnect_redo\controllers\auth.php(84): Model\User->getUser('sodiqgbemishola...')
+#4 {main}
+===========end============
+==========12:21:45============
+PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'email' in 'where clause' in C:\laragon\www\corperconnect_redo\includes\Database.php:149
+Stack trace:
+#0 C:\laragon\www\corperconnect_redo\includes\Database.php(149): PDO->prepare('SELECT  user.* ...')
+#1 C:\laragon\www\corperconnect_redo\includes\Database.php(115): Includes\Database->get('user', Array)
+#2 C:\laragon\www\corperconnect_redo\app\Models\User.php(25): Includes\Database->__call('getUserByEmail', Array)
+#3 C:\laragon\www\corperconnect_redo\controllers\auth.php(140): Model\User->getUser('israelomorodion...')
+#4 {main}
+===========end============

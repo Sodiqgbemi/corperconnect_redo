@@ -19,16 +19,21 @@ class User extends Utility {
 
     }
 
-    public function getUser($userId) {
+    public function getUser(string|int $userData) : array {
         try {
-            return 'rayya';
+            if ( is_string($userData)){
+                return $this->db->getUserByEmail($userData);
+            }
+             else {
+                return $this->db->getUserById($userData);
+            }
         } catch (Throwable $e) {
             throw $e;
         }
     }
-    
-    public function getUserByEmail(string $email) : array {
-        try {
+
+    public function getUserPassword(){
+        try{
             $user = $this->db->getSingleRecord($this->table->user, '*', " AND users_email = '$email'");
 
             if (!$user OR $user === null) {
@@ -42,6 +47,40 @@ class User extends Utility {
         }
     }
 
+    
+    private function getUserByEmail(string $userData) : array {
+        try {
+            $user = $this->db->getSingleRecord($this->table->user, '*', " AND users_email = '$userData'");
+
+            if (!$user OR $user === null) {
+                return [];
+            }
+            return $user;
+
+        } catch (Throwable $e) {
+            throw $e;
+        }
+    }
+
+
+    private function getUserById(Int $userData){
+         try {
+            $query = "SELECT *, FROM 
+                {$this->table->user} user
+                WHERE 
+                (user.user_id = '$userData')
+            ";
+            $result = $this->db->getRecFrmQry($query, 'single');
+            if ($result != NULL) {
+                $this->responseBody = $result;
+            } else {
+                $this->responseBody = [];
+            }
+            return $this->responseBody;
+        } catch (Throwable $e) {
+            throw $e;
+        }
+    }
 
 
     public function createUser(array $userData)  {

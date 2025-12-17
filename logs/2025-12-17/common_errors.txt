@@ -1,0 +1,25 @@
+==========12:12:29============
+PDOException: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'Array' at line 1 in C:\laragon\www\corperconnect_redo\includes\Database.php:176
+Stack trace:
+#0 C:\laragon\www\corperconnect_redo\includes\Database.php(176): PDO->prepare('SELECT * FROM u...')
+#1 C:\laragon\www\corperconnect_redo\app\Models\User.php(33): Includes\Database->getSingleRecord('user', '*', ' AND users_emai...', Array)
+#2 C:\laragon\www\corperconnect_redo\app\Models\User.php(25): Model\User->getUserByEmail('israelomorodion...')
+#3 C:\laragon\www\corperconnect_redo\controllers\auth.php(84): Model\User->getUser('israelomorodion...')
+#4 {main}
+===========end============
+==========12:14:52============
+Error: Call to undefined function Model\getUserByEmail() in C:\laragon\www\corperconnect_redo\app\Models\User.php:25
+Stack trace:
+#0 C:\laragon\www\corperconnect_redo\controllers\auth.php(84): Model\User->getUser('israelomorodio@...')
+#1 {main}
+===========end============
+==========12:27:21============
+Error: Call to undefined function vardump() in C:\laragon\www\corperconnect_redo\controllers\auth.php:134
+Stack trace:
+#0 {main}
+===========end============
+==========12:28:02============
+Error: Call to undefined function varexport() in C:\laragon\www\corperconnect_redo\controllers\auth.php:131
+Stack trace:
+#0 {main}
+===========end============
