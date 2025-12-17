@@ -60,11 +60,11 @@ if(isset($postData['corper_signup'])){
             $errors = array_merge($errors, $validator->getValidationErrors());
         }
 
-        $first_name = $postData['first_name'];
-        $last_name = $postData['last_name'];
-        $password = $postData['password'];
-        $password2 = $postData['password2'];
-        $emailaddress = $postData['email'];
+        $first_name = $sanitizedData['first_name'];
+        $last_name = $sanitizedData['last_name'];
+        $password = $sanitizedData['password'];
+        $password2 = $sanitizedData['password2'];
+        $emailaddress = $sanitizedData['email'];
 
         // Check if password is too short
         if (strlen($password) < 5) {
@@ -91,20 +91,20 @@ if(isset($postData['corper_signup'])){
         }
 
         $create_user = $user_instance->createUser([
-            'first_name' => $first_name,
-            'last_name' => $last_name,
-            'email_address' => $emailaddress,
-            'password' => $user_instance->hashPassword($password), 
+            'users_fname' => $first_name,
+            'users_lname' => $last_name,
+            'users_email' => $emailaddress,
+            'users_password' => $user_instance->hashPassword($password), 
         ]);
         
         if($create_user){      
              $_SESSION['successMessage'] = ClientLang::REGISTER_SUCCESS;
-                header("location: " . REFERER); 
+                header("location: ".AUTH_URL."login"); 
                 exit;
 
         } else {
              $_SESSION['errorMessage'] = ClientLang::REGISTER_FAILED;
-            header("location: ".AUTH_URL."login");
+            header("location: ".REFERER);
             exit;
         }
 
@@ -137,33 +137,133 @@ if (isset($postData["corper_login"])) {
             ],
         ];
 
+       
         $validator = new Validator($myFilters);
         $sanitizedData = $validator->run($postData);
         if (!$sanitizedData) {
             $errors = array_merge($errors, $validator->getValidationErrors());
         }
 
-        if (!empty($errors)) {
-            echo "Error found";
-            exit; 
-        }
 
         $userEmail = $sanitizedData["email"];
+        $password = $sanitizedData['password'];
 
-        $getUser = $user_instance->getUserByEmail($userEmail);
+        // Check if password is too short
+        if (strlen($password) < 5) {
+            $errors[] = ClientLang::PASS_LEN_5;
+        }
 
-        if (!empty($getUser)) {
-            $_SESSION['errorMessage'] = ClientLang::USER_NOT_FOUND;
-            header("location: ".AUTH_URL."login");
+        $userData = $user_instance->getUserByEmail($userEmail);
+        if ($userData === false) {
+            $errors[] = ClientLang::INVALID_CREDENTIALS;
+        }
+        
+        if (!empty($errors)) {
+            $_SESSION['errorMessage'] = $errors;
+            header("location: " . REFERER);
+            exit;
+        }
+        
+        
+        $user_id = $userData['user_id'];
+        if (password_verify($password, $userData['users_password'])) {
+
+          $_SESSION['userid'] = $user_id;;
+            $user_instance->clearFormSessions();
+            header("location: " . USER_ACCESS_DIR . "dashboard");
+            exit;
+            
+        } else {
+            $_SESSION['errorMessage'] = ClientLang::INVALID_CREDENTIALS;
+            header("location: " . REFERER);
             exit;
         }
 
-
-        var_export($getUser);
-        die;
-        
     } catch (Throwable $e) {
-        echo ErrorResponse::formatResponse($e);
+        $_SESSION['errorMessage'] = ErrorResponse::formatResponse($e);
+        header("location: " . REFERER);
+        exit;
+    }
+}
+
+
+
+if (isset($postData['change_password'])) {
+    try {
+        
+        $_SESSION['formInput'] = $postData;
+        $csrfToken = $postData['csrf_token'] ?? '';
+        $errors = []; // Initialize an empty array to collect all errors
+
+        // CSRF Token Validation
+        if (!CSRF::validateCsrfToken($csrfToken)) {
+            $errors[] = 'CSRF token validation failed or token expired! Please re-submit your data';
+        }
+
+        $myFilters = [
+            'new_password' => [
+                'sanitization' => 'string',
+                'validations' => 'required',
+            ],
+            'confirm_password' => [
+                'sanitization' => 'string',
+                'validations' => 'required',
+            ],
+        ];
+
+        $validator = new Validator($myFilters);
+        $sanitizedData = $validator->run($postData);
+        if (!$sanitizedData) {
+            $errors = array_merge($errors, $validator->getValidationErrors());
+        }
+
+        // Check if password is too short
+        if ($postData['new_password'] != $postData['confirm_password']) {
+            $errors[] = ClientLang::PASSWORD_MISMATCH;
+        }
+
+        // Check if password is too short
+        if (strlen($postData['new_password']) < 5) {
+            $errors[] = ClientLang::PASS_LEN_5;
+        }
+
+        $userId = $_SESSION['reset_password']['user_id'] ?? "";
+        $otpCode = $_SESSION['reset_password']['otp_code'] ?? "";
+
+        if (empty($userId) OR $user_instance->getUserById($userId) === false) {
+            $errors[] = ClientLang::USER_NOT_FOUND;
+        }
+
+        if (empty($otpCode)) {
+            $errors[] = ClientLang::REQUEST_FAILED;
+        }
+                
+        // Handle errors or proceed
+        if (!empty($errors)) {
+            $_SESSION['errorMessage'] = $errors;
+            header("location: " . REFERER);
+            exit;
+        }
+
+        $userData = ['password' => $user_instance->hashPassword($sanitizedData['new_password'])];
+        $resetPassword = $user_instance->updateUser($userData, $userId);
+
+        if ($resetPassword) {
+            unset($_SESSION['reset_password']);
+            (new OtpTokens($db))->updateToken($otpCode, $userId, 'used');
+            $_SESSION['successMessage'] = ClientLang::PASSWORD_CHANGED_SUCCESS;
+            header("location: " . AUTH_URL.'login');
+            exit;
+        } else {
+            $_SESSION['errorMessage'] = ClientLang::PASS_RESET_ERROR;
+            header("location: " . REFERER);
+            exit;
+        }
+
+    } catch (Throwable|Exception $e) {
+        $_SESSION['errorMessage'] = ErrorResponse::formatResponse($e);
+        header("location: " . REFERER);
+        exit;
     }
 }
 

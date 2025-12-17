@@ -4,16 +4,8 @@ require_once __DIR__ . '/../components/mainhead.php';
 use Includes\Security\CSRF;
 
 ?>
-<body>
-    <div class="container mt-5 bg-light rounded shadow" style="margin-top: 50px; max-width: 500px;">
-        <h2 class="text-center baskervville-sc-regular mb-4">Welcome Back</h2>
-        <div class="bg-white p-5 rounded shadow" style="width: 100%; max-width: 600px;">
 
-        </div>
-    </div>
-
-
-
+<?php include_once GUEST_COMPONENT_DIR.'navbar.php';?>
     <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
         <div class="bg-white p-5 rounded shadow" style="width: 100%; max-width: 600px;">
 
