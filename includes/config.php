@@ -87,10 +87,10 @@ date_default_timezone_set(envLoader::get_key('TIMEZONE'));
 
 // $userId = $utility_instance->get_current_user();
 $userData = $adminData = [];
-$userId = '';
+$userId = $_SESSION['userid'] ?? '';
 
 if (!empty($userId)) {
-    $userData = $user_instance->getUserById($userId);
+    $userData = $user_instance->getUser($userId);
 }
 
 if (isset($_SESSION['adminid'])) {

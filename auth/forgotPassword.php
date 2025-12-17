@@ -24,7 +24,7 @@ $utility_instance = new Utility($db);
                     value="<?php echo $utility_instance->returnFormInput('email');?>"
                 >
             </div>
-            <button type="submit" name="change_password" class="btn btn-success">
+            <button type="submit" name="request_reset_link" class="btn btn-success">
                 <i class="fa fa-paper-plane"></i> Forgot Password
             </button>
         </form>

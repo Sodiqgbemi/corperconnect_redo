@@ -157,7 +157,7 @@ class Utility extends Database
             }
 
             if (isset($_SESSION['successMessage'])) {
-                $formError .= '<div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">';
+                $formError .= '<div class="alert alert-success d-flex align-items-center" role="alert">';
                 if (is_array($_SESSION['successMessage'])) {
                     $formError .= '<div>
                         <h5 class="mt-1 mb-2">Success!</h5>

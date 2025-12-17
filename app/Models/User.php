@@ -19,15 +19,33 @@ class User extends Utility {
 
     }
 
-    public function getUser($userId) {
+    public function getUserPassword(string|int $userData) {
         try {
-            return 'rayya';
+            if (is_int($userData)) {
+                $user = $this->db->getSingleRecord($this->table->user, 'users_password', " AND user_id = '$userData'");
+            } else {
+                $user = $this->db->getSingleRecord($this->table->user, 'users_password', " AND users_email = '$userData'");
+            }
+            return $user['users_password'];
+        } catch (Throwable $e) {
+            throw $e;
+        }
+    }
+
+    public function getUser(string|int $userData) {
+        try {
+            if (is_int($userData)) {
+                $user = $this->getUserById($userData);
+            } else {
+                $user = $this->getUserByEmail($userData);
+            }
+            return $user;
         } catch (Throwable $e) {
             throw $e;
         }
     }
     
-    public function getUserByEmail(string $email) : array {
+    private function getUserByEmail(string $email) : array {
         try {
             $user = $this->db->getSingleRecord($this->table->user, '*', " AND users_email = '$email'");
 
@@ -35,14 +53,29 @@ class User extends Utility {
                 return [];
             }
 
+            unset($user['users_password']);
             return $user;
 
         } catch (Throwable $e) {
             throw $e;
         }
     }
+    
+    private function getUserById(int $userId) : array {
+        try {
+            $user = $this->db->getSingleRecord($this->table->user, '*', " AND user_id = '$userId'");
 
+            if (!$user OR $user === null) {
+                return [];
+            }
 
+            unset($user['users_password']);
+            return $user;
+
+        } catch (Throwable $e) {
+            throw $e;
+        }
+    }
 
     public function createUser(array $userData)  {
 
@@ -54,7 +87,7 @@ class User extends Utility {
             } else {              
                 $this->responseBody = false;
             }
-                 return $this->responseBody;
+            return $this->responseBody;
               
         } catch(Throwable $e){
                 throw $e;
