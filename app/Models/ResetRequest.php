@@ -100,5 +100,19 @@ class ResetRequest extends Utility {
             throw $e;
         }
     }
+    public function getRequestByLink(string $resetCode) : array {
+        try {
+            $requestInfo = $this->db->getSingleRecord($this->table->reset_requests, '*', " AND request_link = '$resetCode'");
+
+            if (!$requestInfo OR $requestInfo === null) {
+                return [];
+            }
+            
+            return $requestInfo;
+
+        } catch (Throwable $e) {
+            throw $e;
+        }
+    }
 
 }

@@ -7,12 +7,9 @@ use Includes\ClientLang;
 use Includes\EmailSender;
 use Includes\Security\CSRF;
 use Includes\Security\Validator;
-<<<<<<< HEAD
-use Helpers\OtpTokens;
-
-=======
+use Model\User;
+use Model\Utility;
 use Model\ResetRequest;
->>>>>>> d63d394bddae7c3d48927ec792b23ff55f8e5a1f
 
 
 // Get and sanitize input data
@@ -23,10 +20,11 @@ $postData = array_merge(
 
 $errors = [];
 
+$user_instance = new User($db);
+$utility_instance = new Utility($db);
 $resetrequest_instance = new ResetRequest($db);
 
 $email_send_instance = new EmailSender();
-// $result = $email_send_instance->send("sodiqgbemishola4@gmail.com", "Error from Copperconnect", 'test it');
 
 if(isset($postData['corper_signup'])){
         try {
@@ -68,30 +66,6 @@ if(isset($postData['corper_signup'])){
                 $errors = array_merge($errors, $validator->getValidationErrors());
             }
 
-<<<<<<< HEAD
-        $first_name = $sanitizedData['first_name'];
-        $last_name = $sanitizedData['last_name'];
-        $password = $sanitizedData['password'];
-        $password2 = $sanitizedData['password2'];
-        $emailaddress = $sanitizedData['email'];
-        // Handle errors or proceed
-        if (!empty($errors)) {
-            $_SESSION['errorMessage'] = $errors;
-            header("location: " . REFERER);
-            exit;
-        }
-
-        $create_user = $user_instance->createUser([
-            'users_fname' => $first_name,
-            'users_lname' => $last_name,
-            'users_email' => $emailaddress,
-            'users_password' => $user_instance->hashPassword($password), 
-        ]);
-        
-        if($create_user){           
-             $_SESSION['successMessage'] = ClientLang::REGISTER_SUCCESS;
-                header("location: ".AUTH_URL."login"); 
-=======
             $first_name = $sanitizedData['first_name'];
             $last_name = $sanitizedData['last_name'];
             $password = $sanitizedData['password'];
@@ -119,7 +93,6 @@ if(isset($postData['corper_signup'])){
             if (!empty($errors)) {
                 $_SESSION['errorMessage'] = $errors;
                 header("location: " . REFERER);
->>>>>>> d63d394bddae7c3d48927ec792b23ff55f8e5a1f
                 exit;
             }
 
@@ -177,16 +150,6 @@ if (isset($postData["corper_login"])) {
             $errors = array_merge($errors, $validator->getValidationErrors());
         }
 
-<<<<<<< HEAD
-        
-        $userEmail = $sanitizedData["email"];
-        $password = $sanitizedData['password'];
-        
-        $user_id = $userData['user_id'];
-        var_export( $userData['user_id']);
-        exit;
-        if (password_verify($password, $userData['users_password'])) {
-=======
         $userEmail = $sanitizedData["email"];
         $password = $sanitizedData['password'];
 
@@ -204,7 +167,6 @@ if (isset($postData["corper_login"])) {
         $user_id = $userData['user_id'];
         $getUserPassword = $user_instance->getUserPassword($userEmail);
         if (password_verify($password, $getUserPassword)) {
->>>>>>> d63d394bddae7c3d48927ec792b23ff55f8e5a1f
 
             $_SESSION['userid'] = $user_id;;
             $user_instance->clearFormSessions();
@@ -224,15 +186,12 @@ if (isset($postData["corper_login"])) {
     }
 }
 
-
-
-<<<<<<< HEAD
-=======
 if (isset($postData['change_password'])) {
     try {
         
         $_SESSION['formInput'] = $postData;
         $csrfToken = $postData['csrf_token'] ?? '';
+        $resetCode = $postData['reset_code'] ?? '';
         $errors = []; // Initialize an empty array to collect all errors
 
         // CSRF Token Validation
@@ -240,16 +199,22 @@ if (isset($postData['change_password'])) {
             $errors[] = 'CSRF token validation failed or token expired! Please re-submit your data';
         }
 
+        // Validate reset code
+        if (empty($resetCode)) {
+            $errors[] = 'Invalid reset link. Please request a new password reset.';
+        }
+
         $myFilters = [
-            'new_password' => [
-                'sanitization' => 'string',
-                'validations' => 'required',
-            ],
-            'confirm_password' => [
-                'sanitization' => 'string',
-                'validations' => 'required',
-            ],
-        ];
+                'new_password' => [
+                    'validation' => 'required|minlen:5',
+                    'sanitization' => 'string',
+                ],
+                'confirm_password' => [
+                    'validation' => 'required|same:new_password',
+                    'sanitization' => 'string',
+                ],
+            ];
+
 
         $validator = new Validator($myFilters);
         $sanitizedData = $validator->run($postData);
@@ -257,25 +222,16 @@ if (isset($postData['change_password'])) {
             $errors = array_merge($errors, $validator->getValidationErrors());
         }
 
-        // Check if password is too short
-        if ($postData['new_password'] != $postData['confirm_password']) {
-            $errors[] = ClientLang::PASSWORD_MISMATCH;
-        }
-
-        // Check if password is too short
-        if (strlen($postData['new_password']) < 5) {
-            $errors[] = ClientLang::PASS_LEN_5;
-        }
-
-        $userId = $_SESSION['reset_password']['user_id'] ?? "";
-        $otpCode = $_SESSION['reset_password']['otp_code'] ?? "";
-
-        if (empty($userId) OR $user_instance->getUser($userId) === false) {
-            $errors[] = ClientLang::USER_NOT_FOUND;
-        }
-
-        if (empty($otpCode)) {
-            $errors[] = ClientLang::REQUEST_FAILED;
+        // Get reset request by reset code
+        $resetRequest = $resetrequest_instance->getRequestByLink($resetCode);
+        if (empty($resetRequest)) {
+            $errors[] = 'Invalid or expired reset link.';
+        } else {
+            $userId = $resetRequest['user_id'];
+            $user = $user_instance->getUser($userId);
+            if (empty($user)) {
+                $errors[] = ClientLang::USER_NOT_FOUND;
+            }
         }
                 
         // Handle errors or proceed
@@ -285,12 +241,12 @@ if (isset($postData['change_password'])) {
             exit;
         }
 
-        $userData = ['password' => $user_instance->hashPassword($sanitizedData['new_password'])];
+        $userData = ['users_password' => $user_instance->hashPassword($sanitizedData['new_password'])];
         $resetPassword = $user_instance->updateUser($userData, $userId);
 
         if ($resetPassword) {
-            unset($_SESSION['reset_password']);
-            (new OtpTokens($db))->updateToken($otpCode, $userId, 'used');
+            // Delete the reset request
+            $resetrequest_instance->delete_request($resetRequest['request_id']);
             $_SESSION['successMessage'] = ClientLang::PASSWORD_CHANGED_SUCCESS;
             header("location: " . AUTH_URL.'login');
             exit;
@@ -306,7 +262,7 @@ if (isset($postData['change_password'])) {
         exit;
     }
 }
->>>>>>> d63d394bddae7c3d48927ec792b23ff55f8e5a1f
+
 
 if (isset($postData['request_reset_link'])) {
     try {
@@ -352,12 +308,24 @@ if (isset($postData['request_reset_link'])) {
         $getUserLink = $resetrequest_instance->getUserRequestLink($userId);
 
         $emailSubject = "Reset Link from ".APP_NAME;
+        $resetLinkCode = $utility_instance->randID('alphanumeric', 64);
+
+        // Generate reset message
+        $resetLink = AUTH_URL.'resetPassword?reset='.$resetLinkCode;
+        $resetMessage = "Dear ".$getUser['users_fname']." <br><br>You have made a request to reset your password. <br>Here is a reset link:<br><br>
+                        <a href='$resetLink'>Click Here to Reset Password</a>
+                        <br><br>
+                        Alternatively, copy this link:<br>
+                        {$resetLink}
+                        <br><br>
+                        This link will expire in 10 minutes.
+                        <br><br>Thank you";
 
         if (!empty($getUserLink)) {
             $isLinkValid = $resetrequest_instance->checkTimeDuration($getUserLink['created_at'], 10);
 
             if (!$isLinkValid) {
-                $resetLinkCode = $utility_instance->randID('alphanumeric', 64);
+                // Link is expired, delete old one and create new
                 $resetrequest_instance->delete_request($getUserLink['request_id']);
 
                 $requestData = [
@@ -368,57 +336,35 @@ if (isset($postData['request_reset_link'])) {
                 $createReset = $resetrequest_instance->create_request($requestData);
                 
                 if ($createReset) {
-                    $resetLink = AUTH_URL.'resetPassword?reset='.$resetLinkCode;
-
-                    $resetMessage = "Dear ".$getUser['users_fname']." You recent made a request to reset your email. <br> Here is a reset link <br><br>
-
-                    <a href='$resetLink'>Click Here</a>
-
-                    <br><br>
-                    Alternatively copy this link
-
-                    <br>
-
-                        {$resetLink}
-                    <br><br> Thank you";
-                    
-                    // $email_send_instance->send($getUser['users_email'], $emailSubject, $resetMessage);
-
+                    $email_send_instance->send($getUser['users_email'], $emailSubject, $resetMessage);
                     $_SESSION['successMessage'] = ClientLang::PASS_RESET_SENT;
                     header("location: " . REFERER);
                     exit;
-                    
                 } else {
                     $_SESSION['errorMessage'] = ClientLang::REQUEST_FAILED;
                     header("location: " . REFERER);
                     exit;
                 }
-
             } else {
-                $resetLink = AUTH_URL.'resetPassword?reset='.$resetLinkCode;
-
-                $resetMessage = "Dear ".$getUser['users_fname']." You recent made a request to reset your email. <br> Here is a reset link <br><br>
-
-                <a href='$resetLink'>Click Here</a>
-
-                <br><br>
-                Alternatively copy this link
-
-                <br>
-
-                    {$resetLink}
-                <br><br> Thank you";
+                // Link is still valid, send email with existing link
+                $resetLink = AUTH_URL.'resetPassword?reset='.$getUserLink['request_link'];
+                $resetMessage = "Dear ".$getUser['users_fname']." <br><br>You have made a request to reset your password. <br>Here is your reset link:<br><br>
+                                <a href='$resetLink'>Click Here to Reset Password</a>
+                                <br><br>
+                                Alternatively, copy this link:<br>
+                                {$resetLink}
+                                <br><br>
+                                This link will expire in 10 minutes.
+                                <br><br>Thank you";
                 
-                // $email_send_instance->send($getUser['users_email'], $emailSubject, $resetMessage);
-
+                $email_send_instance->send($getUser['users_email'], $emailSubject, $resetMessage);
                 $_SESSION['successMessage'] = ClientLang::PASS_RESET_SENT;
                 header("location: " . REFERER);
                 exit;
             }
         }
         else {
-            $resetLinkCode = $utility_instance->randID('alphanumeric', 64);
-           
+            // No existing reset request, create new one
             $requestData = [
                 'user_id' => $userId,
                 'request_link' => $resetLinkCode
@@ -427,32 +373,15 @@ if (isset($postData['request_reset_link'])) {
             $createReset = $resetrequest_instance->create_request($requestData);
             
             if ($createReset) {
-                $resetLink = AUTH_URL.'resetPassword?reset='.$resetLinkCode;
-
-                $resetMessage = "Dear ".$getUser['users_fname']." You recent made a request to reset your email. <br> Here is a reset link <br><br>
-
-                <a href='$resetLink'>Click Here</a>
-
-                <br><br>
-                Alternatively copy this link
-
-                <br>
-
-                    {$resetLink}
-                <br><br> Thank you";
-                
-                // $email_send_instance->send($getUser['users_email'], $emailSubject, $resetMessage);
-
+                $email_send_instance->send($getUser['users_email'], $emailSubject, $resetMessage);
                 $_SESSION['successMessage'] = ClientLang::PASS_RESET_SENT;
                 header("location: " . REFERER);
                 exit;
-                
             } else {
                 $_SESSION['errorMessage'] = ClientLang::REQUEST_FAILED;
                 header("location: " . REFERER);
                 exit;
             }
-
         }
 
     } catch (Throwable|Exception $e) {

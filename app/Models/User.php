@@ -94,4 +94,29 @@ class User extends Utility {
         }
 
     }
+    public function updateUser(array $userData, string|int $userIdentifier)  {
+
+    try{
+        // Determine if identifier is user ID or email
+        if (is_int($userIdentifier)) {
+            $whereCondition = ['user_id' => $userIdentifier];
+        } else {
+            $whereCondition = ['users_email' => $userIdentifier];
+        }
+
+        // Update the user record
+        $updateUser = $this->db->update($this->table->user, $userData, $whereCondition);
+        
+        if($updateUser){
+            $this->responseBody = true;               
+        } else {              
+            $this->responseBody = false;
+        }
+        return $this->responseBody;
+          
+    } catch(Throwable $e){
+        throw $e;
+    }
+
+}
 }

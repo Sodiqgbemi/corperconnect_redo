@@ -10,30 +10,34 @@ $utility_instance = new Utility($db);
 
     <?php include_once GUEST_COMPONENT_DIR.'navbar.php';?>
     <div class="container mt-5 bg-light rounded shadow" style="margin-top: 50px; max-width: 500px;">
-        <h2 class="text-center baskervville-sc-regular mb-4">Welcome Back</h2>
+    <h2 class="text-center baskervville-sc-regular mb-4">Forgot Password</h2>
 
-        <?php echo $utility_instance->displayAlertMessage(); ?>
+    <?php echo $utility_instance->displayAlertMessage(); ?>
 
-        <form action="<?php echo CONTROLLER_URL;?>auth.php" method="post">
-            <?php echo CSRF::csrfField(); ?>
+    <form action="<?php echo CONTROLLER_URL; ?>auth.php" method="post">
+        <?php echo CSRF::csrfField(); ?>
 
-            <div class="mb-3">
-                <label for="user_detail" class="form-label">Email</label>
-                <input type="text" name="email" class="form-control" id="loginEmail" 
-                    placeholder="Enter your email or username" 
-                    value="<?php echo $utility_instance->returnFormInput('email');?>"
-                >
-            </div>
-<<<<<<< HEAD
-            <button type="submit" name="initiate_password_reset" class="btn btn-success">
-=======
-            <button type="submit" name="request_reset_link" class="btn btn-success">
->>>>>>> d63d394bddae7c3d48927ec792b23ff55f8e5a1f
-                <i class="fa fa-paper-plane"></i> Forgot Password
-            </button>
-        </form>
+        <div class="mb-3">
+            <label for="loginEmail" class="form-label">Email</label>
+            <input
+                type="email"
+                name="email"
+                class="form-control"
+                id="loginEmail"
+                placeholder="Enter your email"
+                value="<?php echo $utility_instance->returnFormInput('email'); ?>"
+            >
+        </div>
 
-        <p class="mt-3 text-center">Don't have an account? <a href="signup">Sign up here</a>.</p>
+        <button type="submit" name="request_reset_link" class="btn btn-success w-100">
+            <i class="fa fa-paper-plane"></i> Send Reset Link
+        </button>
+    </form>
+
+    <p class="mt-3 text-center">
+        Remembered your password? <a href="login">Login</a>
+    </p>
     </div>
+
 
 <?php include_once GUEST_COMPONENT_DIR.'footer.php';?>

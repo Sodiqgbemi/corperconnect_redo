@@ -13,6 +13,8 @@ use PDOException;
 use Model\Utility;
 use Includes\Database;
 use Includes\envLoader;
+use Model\ResetRequest;
+use Includes\EmailSender;
 
 // Now you can access environment variables using getenv() or $_ENV
 ini_set("display_errors", envLoader::get_key('APP_DEBUG') ? 1 : 0);
@@ -77,6 +79,9 @@ try {
 $db = new Database($pdo);
 $utility_instance = new Utility($db);
 $user_instance = new User($db);
+$resetrequest_instance = new ResetRequest($db);
+$email_send_instance = new EmailSender();
+
 
 $pageTitle = 'CorperConnect';
 
@@ -85,15 +90,9 @@ define("PAGE_TITLE", is_null($pageTitle) ? APP_NAME : APP_NAME . ' | ' . $pageTi
 // Other application logic here...
 date_default_timezone_set(envLoader::get_key('TIMEZONE'));
 
-<<<<<<< HEAD
-$userId = $utility_instance->get_current_user();
-//$userData = $adminData = [];
-//$userId = '';
-=======
 // $userId = $utility_instance->get_current_user();
 $userData = $adminData = [];
 $userId = $_SESSION['userid'] ?? '';
->>>>>>> d63d394bddae7c3d48927ec792b23ff55f8e5a1f
 
 if (!empty($userId)) {
     $userData = $user_instance->getUser($userId);

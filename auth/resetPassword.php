@@ -14,20 +14,24 @@ $utility_instance = new Utility($db);
 
         <?php echo $utility_instance->displayAlertMessage(); ?>
 
-        <form action="<?php echo CONTROLLER_URL;?>auth.php" method="post">
+         <form action="<?php echo CONTROLLER_URL; ?>auth.php" method="POST">
             <?php echo CSRF::csrfField(); ?>
-
+            <input 
+            type="hidden" 
+            name="reset_code" 
+            value="<?php echo htmlspecialchars($resetCode, ENT_QUOTES, 'UTF-8'); ?>"
+            >
             <div class="mb-3">
-                <label for="loginPassword" class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" id="loginPassword" 
+                <label for="new_Password" class="form-label">Password</label>
+                <input type="password" name="new_password" class="form-control" id="loginPassword" 
                     placeholder="Enter your password">
             </div>
             <div class="mb-3">
-                <label for="loginPassword" class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" id="loginPassword" 
+                <label for="confirm_Password" class="form-label">Password</label>
+                <input type="password" name="confirm_password" class="form-control" id="signupPassword" 
                     placeholder="Enter your password">
             </div>
-            <button type="submit" name="corper_login" class="btn btn-success">
+            <button type="submit" name="change_password" class="btn btn-success">
                 <i class="fa fa-paper-plane"></i> Reset Password
             </button>
         </form>
